@@ -42,5 +42,8 @@ EXPOSE 8080
 # Copia el resto del proyecto
 COPY . .
 
+# ⭐ CREAR DIRECTORIO Y DAR PERMISOS ⭐
+RUN mkdir -p /src/files && chmod 777 /src/files
+
 # Comando de inicio
 CMD ["python", "./app.py"]
