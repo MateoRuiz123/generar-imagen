@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+    lb:
+        restart: always
+        image: dockercloud/haproxy
+        links:
+            - cm-generar-imagen-guia-op
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            STATS_AUTH: "user:admin1"
+            TIMEOUT_CONNECT: "300s"
+            TIMEOUT_CLIENT: "300s"
+            TIMEOUT_SERVER: "300s"
+        ports:
+            - '4199:8080'
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '50m'
+                max-file: '5'
+                labels: cm-generar-imagen-guia-op-lb
+    cm-generar-imagen-guia-op:
+        environment:
+            - 'VIRTUAL_HOST=*:8080'
+        restart: always
+        build: .
+        command: gunicorn --bind 0.0.0.0:8080 wsgi:app
+        scale: 5
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '5m'
+                max-file: '5'
+                labels: cm-generar-imagen-guia-op
+networks:
+    default:
+        external:
+            name: br0
